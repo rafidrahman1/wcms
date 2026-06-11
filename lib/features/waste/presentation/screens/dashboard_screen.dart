@@ -99,13 +99,19 @@ class DashboardScreen extends ConsumerWidget {
       builder: (context) => AlertDialog(
         title: const Text('Clear all records?'),
         content: const Text('This deletes every saved waste record.'),
+        actionsPadding: const EdgeInsets.fromLTRB(24, 0, 24, 16),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(false),
             child: const Text('Cancel'),
           ),
           FilledButton(
-            style: FilledButton.styleFrom(backgroundColor: EcoColors.errorText),
+            style: FilledButton.styleFrom(
+              backgroundColor: EcoColors.errorText,
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+              minimumSize: Size.zero,
+              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+            ),
             onPressed: () => Navigator.of(context).pop(true),
             child: const Text('Clear all'),
           ),
@@ -124,12 +130,18 @@ class DashboardScreen extends ConsumerWidget {
       builder: (context) => AlertDialog(
         title: const Text('Delete record?'),
         content: const Text('This cannot be undone.'),
+        actionsPadding: const EdgeInsets.fromLTRB(24, 0, 24, 16),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(false),
             child: const Text('Cancel'),
           ),
           FilledButton(
+            style: FilledButton.styleFrom(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+              minimumSize: Size.zero,
+              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+            ),
             onPressed: () => Navigator.of(context).pop(true),
             child: const Text('Delete'),
           ),

@@ -22,6 +22,7 @@ class _LogWasteScreenState extends ConsumerState<LogWasteScreen> {
   final _memberIdController = TextEditingController();
   final _weightController = TextEditingController();
   WasteType _selectedType = WasteType.plastic;
+  int _typeFieldKey = 0;
   String? _imagePath;
   bool _isGenerating = false;
 
@@ -101,6 +102,7 @@ class _LogWasteScreenState extends ConsumerState<LogWasteScreen> {
     _weightController.clear();
     setState(() {
       _selectedType = WasteType.plastic;
+      _typeFieldKey++;
       _imagePath = null;
     });
   }
@@ -159,17 +161,36 @@ class _LogWasteScreenState extends ConsumerState<LogWasteScreen> {
             ),
             const SizedBox(height: 16),
             DropdownButtonFormField<WasteType>(
-              key: ValueKey(_selectedType),
+              key: ValueKey(_typeFieldKey),
               initialValue: _selectedType,
+              isExpanded: true,
               decoration: const InputDecoration(
                 labelText: 'Waste Type',
                 prefixIcon: Icon(Icons.category_outlined, color: EcoColors.textSecondary),
               ),
+              icon: Icon(
+                Icons.keyboard_arrow_down_rounded,
+                color: EcoColors.textSecondary,
+              ),
+              style: const TextStyle(
+                color: EcoColors.textPrimary,
+                fontWeight: FontWeight.w500,
+                fontSize: 16,
+              ),
+              dropdownColor: EcoColors.surface,
+              borderRadius: BorderRadius.circular(12),
+              menuMaxHeight: 280,
               items: WasteType.values
                   .map(
                     (type) => DropdownMenuItem(
                       value: type,
-                      child: Text(type.label),
+                      child: Text(
+                        type.label,
+                        style: const TextStyle(
+                          color: EcoColors.textPrimary,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
                     ),
                   )
                   .toList(),
