@@ -1,9 +1,14 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:wms/core/theme/eco_colors.dart';
-import 'package:wms/features/waste/domain/entities/waste_item.dart';
+import 'package:wms/features/waste/models/waste_item.dart';
+
+String _formatTime(DateTime time) {
+  final hour = time.hour.toString().padLeft(2, '0');
+  final minute = time.minute.toString().padLeft(2, '0');
+  return '$hour:$minute';
+}
 
 class WasteCard extends StatelessWidget {
   const WasteCard({
@@ -19,8 +24,6 @@ class WasteCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final timeFormat = DateFormat.Hm();
-
     return Material(
       color: EcoColors.surface,
       borderRadius: BorderRadius.circular(20),
@@ -85,7 +88,7 @@ class WasteCard extends StatelessWidget {
                 ),
               ),
               Text(
-                timeFormat.format(item.createdAt),
+                _formatTime(item.createdAt),
                 style: TextStyle(
                   fontSize: 10,
                   fontFamily: 'monospace',

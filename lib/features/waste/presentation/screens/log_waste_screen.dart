@@ -2,14 +2,15 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:wms/core/constants/waste_types.dart';
 import 'package:wms/core/theme/eco_colors.dart';
 import 'package:wms/core/utils/image_storage.dart';
-import 'package:wms/core/utils/permissions.dart';
-import 'package:wms/features/waste/domain/entities/waste_item.dart';
+import 'package:wms/features/waste/models/waste_item.dart';
 import 'package:wms/features/waste/presentation/providers/waste_providers.dart';
 import 'package:wms/features/waste/presentation/screens/camera_capture_screen.dart';
 import 'package:wms/features/waste/presentation/screens/waste_detail_screen.dart';
+
 class LogWasteScreen extends ConsumerStatefulWidget {
   const LogWasteScreen({super.key});
 
@@ -34,8 +35,8 @@ class _LogWasteScreenState extends ConsumerState<LogWasteScreen> {
   }
 
   Future<void> _capturePhoto() async {
-    final granted = await AppPermissions.requestCamera();
-    if (!granted) {
+    final status = await Permission.camera.request();
+    if (!status.isGranted) {
       if (!mounted) return;
       _showSnackBar('Camera permission is required to capture waste photos.');
       return;
@@ -51,7 +52,7 @@ class _LogWasteScreenState extends ConsumerState<LogWasteScreen> {
 
     if (photo == null) return;
 
-    final persistedPath = await ImageStorage.persistImage(photo);
+    final persistedPath = await persistWasteImage(photo);
 
     if (!mounted) return;
     setState(() => _imagePath = persistedPath);

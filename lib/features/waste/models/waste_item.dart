@@ -1,9 +1,26 @@
 import 'package:wms/core/constants/waste_types.dart';
 import 'package:wms/features/waste/data/database/app_database.dart';
-import 'package:wms/features/waste/domain/entities/waste_item.dart';
+
+class WasteItem {
+  const WasteItem({
+    this.id,
+    required this.memberId,
+    required this.weight,
+    required this.type,
+    required this.imagePath,
+    required this.createdAt,
+  });
+
+  final int? id;
+  final String memberId;
+  final double weight;
+  final WasteType type;
+  final String imagePath;
+  final DateTime createdAt;
+}
 
 extension WasteItemRowMapper on WasteItemRow {
-  WasteItem toEntity() {
+  WasteItem toWasteItem() {
     return WasteItem(
       id: id,
       memberId: memberId,
@@ -15,7 +32,7 @@ extension WasteItemRowMapper on WasteItemRow {
   }
 }
 
-extension WasteItemEntityMapper on WasteItem {
+extension WasteItemCompanionMapper on WasteItem {
   WasteItemsCompanion toCompanion() {
     return WasteItemsCompanion.insert(
       memberId: memberId,

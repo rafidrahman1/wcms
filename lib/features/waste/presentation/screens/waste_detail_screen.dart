@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:qr_flutter/qr_flutter.dart';
+import 'package:wms/core/qr/qr.dart';
 import 'package:wms/core/theme/eco_colors.dart';
-import 'package:wms/core/utils/qr_payload.dart';
-import 'package:wms/core/utils/qr_printer.dart';
-import 'package:wms/features/waste/domain/entities/waste_item.dart';
+import 'package:wms/features/waste/models/waste_item.dart';
 import 'package:wms/features/waste/presentation/providers/waste_providers.dart';
 
 class WasteDetailScreen extends ConsumerWidget {
@@ -14,7 +13,7 @@ class WasteDetailScreen extends ConsumerWidget {
 
   Future<void> _onPrint(BuildContext context, WasteItem item) async {
     try {
-      await QrPrinter.print(item);
+      await printWasteQr(item);
     } catch (error) {
       if (!context.mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
@@ -65,12 +64,12 @@ class WasteDetailScreen extends ConsumerWidget {
                         borderRadius: BorderRadius.circular(20),
                       ),
                       child: QrImageView(
-                        data: QrPayload.encodeJson(item),
+                        data: encodeWasteQr(item),
                         version: QrVersions.auto,
-                        size: 260,
+                        size: displayQrSize,
                         gapless: true,
                         backgroundColor: Colors.white,
-                        errorCorrectionLevel: QrErrorCorrectLevel.H,
+                        errorCorrectionLevel: qrErrorLevel,
                       ),
                     ),
                   ),

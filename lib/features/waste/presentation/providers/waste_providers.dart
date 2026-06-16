@@ -1,8 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wms/features/waste/data/database/app_database.dart';
-import 'package:wms/features/waste/data/repositories/waste_repository_impl.dart';
-import 'package:wms/features/waste/domain/entities/waste_item.dart';
-import 'package:wms/features/waste/domain/repositories/waste_repository.dart';
+import 'package:wms/features/waste/data/waste_repository.dart';
+import 'package:wms/features/waste/models/waste_item.dart';
 
 final databaseProvider = Provider<AppDatabase>((ref) {
   final database = AppDatabase();
@@ -11,7 +10,7 @@ final databaseProvider = Provider<AppDatabase>((ref) {
 });
 
 final wasteRepositoryProvider = Provider<WasteRepository>((ref) {
-  return WasteRepositoryImpl(ref.watch(databaseProvider));
+  return WasteRepository(ref.watch(databaseProvider));
 });
 
 final wasteItemsStreamProvider = StreamProvider<List<WasteItem>>((ref) {
