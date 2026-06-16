@@ -58,7 +58,12 @@ class _LogWasteScreenState extends ConsumerState<LogWasteScreen> {
     setState(() => _imagePath = persistedPath);
   }
 
+  void _dismissKeyboard() {
+    FocusManager.instance.primaryFocus?.unfocus();
+  }
+
   Future<void> _generateQr() async {
+    _dismissKeyboard();
     if (!_formKey.currentState!.validate()) return;
 
     if (_imagePath == null || _imagePath!.isEmpty) {
@@ -87,6 +92,8 @@ class _LogWasteScreenState extends ConsumerState<LogWasteScreen> {
           builder: (_) => WasteDetailScreen(itemId: id),
         ),
       );
+
+      if (mounted) _dismissKeyboard();
     } catch (error) {
       if (!mounted) return;
       _showSnackBar('Failed to generate QR code: $error');
@@ -98,6 +105,7 @@ class _LogWasteScreenState extends ConsumerState<LogWasteScreen> {
   }
 
   void _resetForm() {
+    _dismissKeyboard();
     _formKey.currentState?.reset();
     _memberIdController.clear();
     _weightController.clear();
