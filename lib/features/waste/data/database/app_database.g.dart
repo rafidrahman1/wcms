@@ -33,6 +33,17 @@ class $WasteItemsTable extends WasteItems
     type: DriftSqlType.string,
     requiredDuringInsert: true,
   );
+  static const VerificationMeta _memberNameMeta = const VerificationMeta(
+    'memberName',
+  );
+  @override
+  late final GeneratedColumn<String> memberName = GeneratedColumn<String>(
+    'member_name',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
   static const VerificationMeta _weightMeta = const VerificationMeta('weight');
   @override
   late final GeneratedColumn<double> weight = GeneratedColumn<double>(
@@ -77,6 +88,7 @@ class $WasteItemsTable extends WasteItems
   List<GeneratedColumn> get $columns => [
     id,
     memberId,
+    memberName,
     weight,
     type,
     imagePath,
@@ -104,6 +116,12 @@ class $WasteItemsTable extends WasteItems
       );
     } else if (isInserting) {
       context.missing(_memberIdMeta);
+    }
+    if (data.containsKey('member_name')) {
+      context.handle(
+        _memberNameMeta,
+        memberName.isAcceptableOrUnknown(data['member_name']!, _memberNameMeta),
+      );
     }
     if (data.containsKey('weight')) {
       context.handle(
@@ -154,6 +172,10 @@ class $WasteItemsTable extends WasteItems
         DriftSqlType.string,
         data['${effectivePrefix}member_id'],
       )!,
+      memberName: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}member_name'],
+      ),
       weight: attachedDatabase.typeMapping.read(
         DriftSqlType.double,
         data['${effectivePrefix}weight'],
@@ -182,6 +204,7 @@ class $WasteItemsTable extends WasteItems
 class WasteItemRow extends DataClass implements Insertable<WasteItemRow> {
   final int id;
   final String memberId;
+  final String? memberName;
   final double weight;
   final String type;
   final String imagePath;
@@ -189,6 +212,7 @@ class WasteItemRow extends DataClass implements Insertable<WasteItemRow> {
   const WasteItemRow({
     required this.id,
     required this.memberId,
+    this.memberName,
     required this.weight,
     required this.type,
     required this.imagePath,
@@ -199,6 +223,9 @@ class WasteItemRow extends DataClass implements Insertable<WasteItemRow> {
     final map = <String, Expression>{};
     map['id'] = Variable<int>(id);
     map['member_id'] = Variable<String>(memberId);
+    if (!nullToAbsent || memberName != null) {
+      map['member_name'] = Variable<String>(memberName);
+    }
     map['weight'] = Variable<double>(weight);
     map['type'] = Variable<String>(type);
     map['image_path'] = Variable<String>(imagePath);
@@ -210,6 +237,9 @@ class WasteItemRow extends DataClass implements Insertable<WasteItemRow> {
     return WasteItemsCompanion(
       id: Value(id),
       memberId: Value(memberId),
+      memberName: memberName == null && nullToAbsent
+          ? const Value.absent()
+          : Value(memberName),
       weight: Value(weight),
       type: Value(type),
       imagePath: Value(imagePath),
@@ -225,6 +255,7 @@ class WasteItemRow extends DataClass implements Insertable<WasteItemRow> {
     return WasteItemRow(
       id: serializer.fromJson<int>(json['id']),
       memberId: serializer.fromJson<String>(json['memberId']),
+      memberName: serializer.fromJson<String?>(json['memberName']),
       weight: serializer.fromJson<double>(json['weight']),
       type: serializer.fromJson<String>(json['type']),
       imagePath: serializer.fromJson<String>(json['imagePath']),
@@ -237,6 +268,7 @@ class WasteItemRow extends DataClass implements Insertable<WasteItemRow> {
     return <String, dynamic>{
       'id': serializer.toJson<int>(id),
       'memberId': serializer.toJson<String>(memberId),
+      'memberName': serializer.toJson<String?>(memberName),
       'weight': serializer.toJson<double>(weight),
       'type': serializer.toJson<String>(type),
       'imagePath': serializer.toJson<String>(imagePath),
@@ -247,6 +279,7 @@ class WasteItemRow extends DataClass implements Insertable<WasteItemRow> {
   WasteItemRow copyWith({
     int? id,
     String? memberId,
+    Value<String?> memberName = const Value.absent(),
     double? weight,
     String? type,
     String? imagePath,
@@ -254,6 +287,7 @@ class WasteItemRow extends DataClass implements Insertable<WasteItemRow> {
   }) => WasteItemRow(
     id: id ?? this.id,
     memberId: memberId ?? this.memberId,
+    memberName: memberName.present ? memberName.value : this.memberName,
     weight: weight ?? this.weight,
     type: type ?? this.type,
     imagePath: imagePath ?? this.imagePath,
@@ -263,6 +297,9 @@ class WasteItemRow extends DataClass implements Insertable<WasteItemRow> {
     return WasteItemRow(
       id: data.id.present ? data.id.value : this.id,
       memberId: data.memberId.present ? data.memberId.value : this.memberId,
+      memberName: data.memberName.present
+          ? data.memberName.value
+          : this.memberName,
       weight: data.weight.present ? data.weight.value : this.weight,
       type: data.type.present ? data.type.value : this.type,
       imagePath: data.imagePath.present ? data.imagePath.value : this.imagePath,
@@ -275,6 +312,7 @@ class WasteItemRow extends DataClass implements Insertable<WasteItemRow> {
     return (StringBuffer('WasteItemRow(')
           ..write('id: $id, ')
           ..write('memberId: $memberId, ')
+          ..write('memberName: $memberName, ')
           ..write('weight: $weight, ')
           ..write('type: $type, ')
           ..write('imagePath: $imagePath, ')
@@ -285,13 +323,14 @@ class WasteItemRow extends DataClass implements Insertable<WasteItemRow> {
 
   @override
   int get hashCode =>
-      Object.hash(id, memberId, weight, type, imagePath, createdAt);
+      Object.hash(id, memberId, memberName, weight, type, imagePath, createdAt);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       (other is WasteItemRow &&
           other.id == this.id &&
           other.memberId == this.memberId &&
+          other.memberName == this.memberName &&
           other.weight == this.weight &&
           other.type == this.type &&
           other.imagePath == this.imagePath &&
@@ -301,6 +340,7 @@ class WasteItemRow extends DataClass implements Insertable<WasteItemRow> {
 class WasteItemsCompanion extends UpdateCompanion<WasteItemRow> {
   final Value<int> id;
   final Value<String> memberId;
+  final Value<String?> memberName;
   final Value<double> weight;
   final Value<String> type;
   final Value<String> imagePath;
@@ -308,6 +348,7 @@ class WasteItemsCompanion extends UpdateCompanion<WasteItemRow> {
   const WasteItemsCompanion({
     this.id = const Value.absent(),
     this.memberId = const Value.absent(),
+    this.memberName = const Value.absent(),
     this.weight = const Value.absent(),
     this.type = const Value.absent(),
     this.imagePath = const Value.absent(),
@@ -316,6 +357,7 @@ class WasteItemsCompanion extends UpdateCompanion<WasteItemRow> {
   WasteItemsCompanion.insert({
     this.id = const Value.absent(),
     required String memberId,
+    this.memberName = const Value.absent(),
     required double weight,
     required String type,
     required String imagePath,
@@ -328,6 +370,7 @@ class WasteItemsCompanion extends UpdateCompanion<WasteItemRow> {
   static Insertable<WasteItemRow> custom({
     Expression<int>? id,
     Expression<String>? memberId,
+    Expression<String>? memberName,
     Expression<double>? weight,
     Expression<String>? type,
     Expression<String>? imagePath,
@@ -336,6 +379,7 @@ class WasteItemsCompanion extends UpdateCompanion<WasteItemRow> {
     return RawValuesInsertable({
       if (id != null) 'id': id,
       if (memberId != null) 'member_id': memberId,
+      if (memberName != null) 'member_name': memberName,
       if (weight != null) 'weight': weight,
       if (type != null) 'type': type,
       if (imagePath != null) 'image_path': imagePath,
@@ -346,6 +390,7 @@ class WasteItemsCompanion extends UpdateCompanion<WasteItemRow> {
   WasteItemsCompanion copyWith({
     Value<int>? id,
     Value<String>? memberId,
+    Value<String?>? memberName,
     Value<double>? weight,
     Value<String>? type,
     Value<String>? imagePath,
@@ -354,6 +399,7 @@ class WasteItemsCompanion extends UpdateCompanion<WasteItemRow> {
     return WasteItemsCompanion(
       id: id ?? this.id,
       memberId: memberId ?? this.memberId,
+      memberName: memberName ?? this.memberName,
       weight: weight ?? this.weight,
       type: type ?? this.type,
       imagePath: imagePath ?? this.imagePath,
@@ -369,6 +415,9 @@ class WasteItemsCompanion extends UpdateCompanion<WasteItemRow> {
     }
     if (memberId.present) {
       map['member_id'] = Variable<String>(memberId.value);
+    }
+    if (memberName.present) {
+      map['member_name'] = Variable<String>(memberName.value);
     }
     if (weight.present) {
       map['weight'] = Variable<double>(weight.value);
@@ -390,6 +439,7 @@ class WasteItemsCompanion extends UpdateCompanion<WasteItemRow> {
     return (StringBuffer('WasteItemsCompanion(')
           ..write('id: $id, ')
           ..write('memberId: $memberId, ')
+          ..write('memberName: $memberName, ')
           ..write('weight: $weight, ')
           ..write('type: $type, ')
           ..write('imagePath: $imagePath, ')
@@ -414,6 +464,7 @@ typedef $$WasteItemsTableCreateCompanionBuilder =
     WasteItemsCompanion Function({
       Value<int> id,
       required String memberId,
+      Value<String?> memberName,
       required double weight,
       required String type,
       required String imagePath,
@@ -423,6 +474,7 @@ typedef $$WasteItemsTableUpdateCompanionBuilder =
     WasteItemsCompanion Function({
       Value<int> id,
       Value<String> memberId,
+      Value<String?> memberName,
       Value<double> weight,
       Value<String> type,
       Value<String> imagePath,
@@ -445,6 +497,11 @@ class $$WasteItemsTableFilterComposer
 
   ColumnFilters<String> get memberId => $composableBuilder(
     column: $table.memberId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get memberName => $composableBuilder(
+    column: $table.memberName,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -488,6 +545,11 @@ class $$WasteItemsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get memberName => $composableBuilder(
+    column: $table.memberName,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<double> get weight => $composableBuilder(
     column: $table.weight,
     builder: (column) => ColumnOrderings(column),
@@ -523,6 +585,11 @@ class $$WasteItemsTableAnnotationComposer
 
   GeneratedColumn<String> get memberId =>
       $composableBuilder(column: $table.memberId, builder: (column) => column);
+
+  GeneratedColumn<String> get memberName => $composableBuilder(
+    column: $table.memberName,
+    builder: (column) => column,
+  );
 
   GeneratedColumn<double> get weight =>
       $composableBuilder(column: $table.weight, builder: (column) => column);
@@ -570,6 +637,7 @@ class $$WasteItemsTableTableManager
               ({
                 Value<int> id = const Value.absent(),
                 Value<String> memberId = const Value.absent(),
+                Value<String?> memberName = const Value.absent(),
                 Value<double> weight = const Value.absent(),
                 Value<String> type = const Value.absent(),
                 Value<String> imagePath = const Value.absent(),
@@ -577,6 +645,7 @@ class $$WasteItemsTableTableManager
               }) => WasteItemsCompanion(
                 id: id,
                 memberId: memberId,
+                memberName: memberName,
                 weight: weight,
                 type: type,
                 imagePath: imagePath,
@@ -586,6 +655,7 @@ class $$WasteItemsTableTableManager
               ({
                 Value<int> id = const Value.absent(),
                 required String memberId,
+                Value<String?> memberName = const Value.absent(),
                 required double weight,
                 required String type,
                 required String imagePath,
@@ -593,6 +663,7 @@ class $$WasteItemsTableTableManager
               }) => WasteItemsCompanion.insert(
                 id: id,
                 memberId: memberId,
+                memberName: memberName,
                 weight: weight,
                 type: type,
                 imagePath: imagePath,

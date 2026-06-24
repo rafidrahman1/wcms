@@ -7,6 +7,7 @@ part 'app_database.g.dart';
 class WasteItems extends Table {
   IntColumn get id => integer().autoIncrement()();
   TextColumn get memberId => text()();
+  TextColumn get memberName => text().nullable()();
   RealColumn get weight => real()();
   TextColumn get type => text()();
   TextColumn get imagePath => text()();
@@ -18,32 +19,28 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase([QueryExecutor? executor]) : super(executor ?? _openConnection());
 
   @override
-  int get schemaVersion => 4;
+  int get schemaVersion => 5;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
-        onUpgrade: (migrator, from, to) async {
-          if (from < 4) {
-            await migrator.deleteTable('waste_items');
-            await migrator.createAll();
-          }
-        },
-      );
+    onUpgrade: (migrator, from, to) async {
+      if (from < 5) {
+        await migrator.deleteTable('waste_items');
+        await migrator.createAll();
+      }
+    },
+  );
 
   static QueryExecutor _openConnection() {
     return driftDatabase(name: 'wms_database');
   }
 
   Stream<List<WasteItemRow>> watchAllWasteItems() {
-    return (select(wasteItems)
-          ..orderBy([(t) => OrderingTerm.desc(t.createdAt)]))
-        .watch();
+    return (select(wasteItems)..orderBy([(t) => OrderingTerm.desc(t.createdAt)])).watch();
   }
 
   Future<List<WasteItemRow>> getAllWasteItems() {
-    return (select(wasteItems)
-          ..orderBy([(t) => OrderingTerm.desc(t.createdAt)]))
-        .get();
+    return (select(wasteItems)..orderBy([(t) => OrderingTerm.desc(t.createdAt)])).get();
   }
 
   Future<WasteItemRow?> getWasteItemById(int id) {
