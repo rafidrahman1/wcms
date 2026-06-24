@@ -1,7 +1,9 @@
 import 'dart:async';
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:flutter/services.dart';
+import 'package:image/image.dart' as img;
 import 'package:senraise_printer/senraise_printer.dart';
 import 'package:sunmi_printer_plus/sunmi_printer_plus.dart';
 
@@ -45,6 +47,45 @@ Future<void> printPdaLabel({required Uint8List qrImageBytes, required List<Strin
     await _printSenraise(qrImageBytes, lines);
   } else {
     throw StateError('No PDA printer available');
+  }
+}
+
+Uint8List _optimizePhotoForThermalPrinter(Uint8List imageBytes) {
+  final image = img.decodeImage(imageBytes);
+  if (image == null) return imageBytes;
+
+  // Downscale to 384 pixels wide (standard for 58mm thermal printers like V2s)
+  final resized = img.copyResize(image, width: 384);
+
+  // Encode back to JPEG
+  return Uint8List.fromList(img.encodeJpg(resized, quality: 85));
+}
+
+Future<void> printCapturedPhoto(Uint8List imageBytes) async {
+  final printerType = await getAvailablePrinter();
+  if (printerType == PrinterType.none) {
+    throw StateError('No PDA printer available');
+  }
+
+  // Pre-process and downscale the photo so it prints properly on 58mm paper
+  final processedBytes = _optimizePhotoForThermalPrinter(imageBytes);
+
+  if (printerType == PrinterType.sunmi) {
+    try {
+      final sunmi = SunmiPrinterPlus();
+      await sunmi.printImage(processedBytes, align: SunmiPrintAlign.CENTER);
+      await sunmi.lineWrap(times: 12);
+    } catch (e) {
+      throw StateError('Sunmi photo print failed: $e');
+    }
+  } else if (printerType == PrinterType.senraise) {
+    try {
+      await _withTimeout(_senraisePrinter.setAlignment(1));
+      await _withTimeout(_senraisePrinter.printPic(processedBytes));
+      await _withTimeout(_senraisePrinter.nextLine(12));
+    } catch (e) {
+      throw StateError('Senraise photo print failed: $e');
+    }
   }
 }
 

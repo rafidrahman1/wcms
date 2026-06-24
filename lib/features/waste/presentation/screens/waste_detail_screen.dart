@@ -1,8 +1,11 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:wms/core/qr/qr.dart';
 import 'package:wms/core/theme/eco_colors.dart';
+import 'package:wms/core/utils/pda_printer.dart';
 import 'package:wms/features/waste/models/waste_item.dart';
 import 'package:wms/features/waste/presentation/providers/waste_providers.dart';
 
@@ -16,9 +19,17 @@ class WasteDetailScreen extends ConsumerWidget {
       await printWasteQr(item);
     } catch (error) {
       if (!context.mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Print failed: $error')),
-      );
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Print failed: $error')));
+    }
+  }
+
+  Future<void> _onPrintPhoto(BuildContext context, WasteItem item) async {
+    try {
+      final bytes = await File(item.imagePath).readAsBytes();
+      await printCapturedPhoto(bytes);
+    } catch (error) {
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Print photo failed: $error')));
     }
   }
 
@@ -28,26 +39,16 @@ class WasteDetailScreen extends ConsumerWidget {
 
     return Scaffold(
       backgroundColor: EcoColors.primaryDark,
-      appBar: AppBar(
-        backgroundColor: EcoColors.primaryDark,
-        foregroundColor: Colors.white,
-        title: const Text('QR Code'),
-        centerTitle: true,
-      ),
+      appBar: AppBar(backgroundColor: EcoColors.primaryDark, foregroundColor: Colors.white, title: const Text('QR Code'), centerTitle: true),
       body: itemAsync.when(
-        loading: () => const Center(
-          child: CircularProgressIndicator(color: Colors.white),
-        ),
+        loading: () => const Center(child: CircularProgressIndicator(color: Colors.white)),
         error: (error, _) => Center(
           child: Text('Error: $error', style: const TextStyle(color: Colors.white)),
         ),
         data: (item) {
           if (item == null) {
             return const Center(
-              child: Text(
-                'Waste item not found.',
-                style: TextStyle(color: Colors.white),
-              ),
+              child: Text('Waste item not found.', style: TextStyle(color: Colors.white)),
             );
           }
 
@@ -59,10 +60,7 @@ class WasteDetailScreen extends ConsumerWidget {
                   child: Center(
                     child: Container(
                       padding: const EdgeInsets.all(24),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(20),
-                      ),
+                      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(20)),
                       child: QrImageView(
                         data: encodeWasteQr(item),
                         version: QrVersions.auto,
@@ -74,19 +72,31 @@ class WasteDetailScreen extends ConsumerWidget {
                     ),
                   ),
                 ),
-                const SizedBox(height: 24),
-                SizedBox(
-                  width: double.infinity,
-                  child: FilledButton.icon(
-                    onPressed: () => _onPrint(context, item),
-                    style: FilledButton.styleFrom(
-                      backgroundColor: EcoColors.accent,
-                      foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(vertical: 16),
+                const SizedBox(height: 16),
+                Row(
+                  children: [
+                    Expanded(
+                      child: FilledButton.icon(
+                        onPressed: () => _onPrint(context, item),
+                        style: FilledButton.styleFrom(backgroundColor: EcoColors.accent, foregroundColor: Colors.white, padding: const EdgeInsets.symmetric(vertical: 16)),
+                        icon: const Icon(Icons.print_outlined),
+                        label: const Text('Print QR'),
+                      ),
                     ),
-                    icon: const Icon(Icons.print_outlined),
-                    label: const Text('Print'),
-                  ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: OutlinedButton.icon(
+                        onPressed: () => _onPrintPhoto(context, item),
+                        style: OutlinedButton.styleFrom(
+                          foregroundColor: Colors.white,
+                          side: const BorderSide(color: Colors.white),
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                        ),
+                        icon: const Icon(Icons.image_outlined),
+                        label: const Text('Print Photo'),
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),
