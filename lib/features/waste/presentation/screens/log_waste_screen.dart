@@ -64,11 +64,6 @@ class _LogWasteScreenState extends ConsumerState<LogWasteScreen> {
     _dismissKeyboard();
     if (!_formKey.currentState!.validate()) return;
 
-    if (_imagePath == null || _imagePath!.isEmpty) {
-      _showSnackBar('Please capture a photo before generating a QR code.');
-      return;
-    }
-
     setState(() => _isGenerating = true);
 
     try {
@@ -77,7 +72,7 @@ class _LogWasteScreenState extends ConsumerState<LogWasteScreen> {
         memberName: _nameController.text.trim().isEmpty ? null : _nameController.text.trim(),
         weight: double.parse(_weightController.text.trim()),
         type: _selectedType,
-        imagePath: _imagePath!,
+        imagePath: _imagePath,
         createdAt: DateTime.now(),
       );
 
@@ -238,7 +233,7 @@ class _PhotoSection extends StatelessWidget {
           child: DecoratedBox(
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(20),
-              border: Border.all(color: imagePath == null ? EcoColors.errorBorder : EcoColors.borderLight, width: 2),
+              border: Border.all(color: EcoColors.borderLight, width: 2),
               color: EcoColors.primaryLight.withValues(alpha: 0.25),
             ),
             child: imagePath != null
