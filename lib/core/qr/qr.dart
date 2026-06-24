@@ -18,6 +18,7 @@ String encodeWasteQr(WasteItem item) {
     'app': 'WMS-Mobile',
     'uid': item.id.toString(),
     'memberId': item.memberId,
+    'memberName': item.memberName,
     'weight': item.weight,
     'type': item.type.name,
     'loggedAt': item.createdAt.toIso8601String(),
