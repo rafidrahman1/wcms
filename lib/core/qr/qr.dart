@@ -33,12 +33,28 @@ Future<Uint8List> renderQrPng(String data, {required double size, bool gapless =
     throw StateError('Invalid QR payload');
   }
 
-  final imageData = await QrPainter.withQr(
+  final painter = QrPainter.withQr(
     qr: result.qrCode!,
     gapless: gapless,
     eyeStyle: const QrEyeStyle(eyeShape: QrEyeShape.square, color: Color(0xFF000000)),
     dataModuleStyle: const QrDataModuleStyle(dataModuleShape: QrDataModuleShape.square, color: Color(0xFF000000)),
-  ).toImageData(size, format: ImageByteFormat.png);
+  );
+
+  const padding = 20.0;
+  final qrSize = size - (padding * 2);
+
+  final recorder = PictureRecorder();
+  final canvas = Canvas(recorder);
+
+  final bgPaint = Paint()..color = const Color(0xFFFFFFFF);
+  canvas.drawRect(Rect.fromLTWH(0, 0, size, size), bgPaint);
+
+  canvas.translate(padding, padding);
+  painter.paint(canvas, Size(qrSize, qrSize));
+
+  final picture = recorder.endRecording();
+  final image = await picture.toImage(size.toInt(), size.toInt());
+  final imageData = await image.toByteData(format: ImageByteFormat.png);
 
   if (imageData == null) {
     throw StateError('Failed to render QR code');
