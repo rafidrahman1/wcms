@@ -24,21 +24,10 @@ String encodeWasteQr(WasteItem item) {
   });
 }
 
-List<String> wasteLabelLines(WasteItem item) => [
-      'Member ID: ${item.memberId}',
-      '${item.weight} kg • ${item.type.label}',
-    ];
+List<String> wasteLabelLines(WasteItem item) => ['Member ID: ${item.memberId}', '${item.weight} kg • ${item.type.label}'];
 
-Future<Uint8List> renderQrPng(
-  String data, {
-  required double size,
-  bool gapless = true,
-}) async {
-  final result = QrValidator.validate(
-    data: data,
-    version: QrVersions.auto,
-    errorCorrectionLevel: qrErrorLevel,
-  );
+Future<Uint8List> renderQrPng(String data, {required double size, bool gapless = true}) async {
+  final result = QrValidator.validate(data: data, version: QrVersions.auto, errorCorrectionLevel: qrErrorLevel);
   if (result.status != QrValidationStatus.valid) {
     throw StateError('Invalid QR payload');
   }
@@ -46,14 +35,8 @@ Future<Uint8List> renderQrPng(
   final imageData = await QrPainter.withQr(
     qr: result.qrCode!,
     gapless: gapless,
-    eyeStyle: const QrEyeStyle(
-      eyeShape: QrEyeShape.square,
-      color: Color(0xFF000000),
-    ),
-    dataModuleStyle: const QrDataModuleStyle(
-      dataModuleShape: QrDataModuleShape.square,
-      color: Color(0xFF000000),
-    ),
+    eyeStyle: const QrEyeStyle(eyeShape: QrEyeShape.square, color: Color(0xFF000000)),
+    dataModuleStyle: const QrDataModuleStyle(dataModuleShape: QrDataModuleShape.square, color: Color(0xFF000000)),
   ).toImageData(size, format: ImageByteFormat.png);
 
   if (imageData == null) {
@@ -83,15 +66,7 @@ Future<void> printWasteQr(WasteItem item) async {
           build: (context) => pw.Center(
             child: pw.Column(
               mainAxisAlignment: pw.MainAxisAlignment.center,
-              children: [
-                pw.Image(
-                  pw.MemoryImage(pdfBytes),
-                  width: 200,
-                  height: 200,
-                ),
-                pw.SizedBox(height: 16),
-                for (final line in wasteLabelLines(item)) pw.Text(line),
-              ],
+              children: [pw.Image(pw.MemoryImage(pdfBytes), width: 200, height: 200), pw.SizedBox(height: 16), for (final line in wasteLabelLines(item)) pw.Text(line)],
             ),
           ),
         ),
