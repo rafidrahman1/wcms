@@ -10,8 +10,8 @@ import 'package:wms/core/utils/pda_printer.dart';
 import 'package:wms/features/waste/models/waste_item.dart';
 
 const qrErrorLevel = QrErrorCorrectLevel.M;
-const displayQrSize = 260.0;
-const _printQrSize = 200.0;
+const displayQrSize = 300.0;
+const _printQrSize = 250.0;
 
 String encodeWasteQr(WasteItem item) {
   return jsonEncode({
@@ -83,7 +83,7 @@ Future<void> printWasteQr(WasteItem item) async {
           build: (context) => pw.Center(
             child: pw.Column(
               mainAxisAlignment: pw.MainAxisAlignment.center,
-              children: [pw.Image(pw.MemoryImage(pdfBytes), width: 200, height: 200), pw.SizedBox(height: 16), for (final line in wasteLabelLines(item)) pw.Text(line)],
+              children: [pw.Image(pw.MemoryImage(pdfBytes), width: 250, height: 250), pw.SizedBox(height: 16), for (final line in wasteLabelLines(item)) pw.Text(line)],
             ),
           ),
         ),
