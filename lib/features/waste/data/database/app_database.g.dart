@@ -69,9 +69,9 @@ class $WasteItemsTable extends WasteItems
   late final GeneratedColumn<String> imagePath = GeneratedColumn<String>(
     'image_path',
     aliasedName,
-    false,
+    true,
     type: DriftSqlType.string,
-    requiredDuringInsert: true,
+    requiredDuringInsert: false,
   );
   static const VerificationMeta _createdAtMeta = const VerificationMeta(
     'createdAt',
@@ -144,8 +144,6 @@ class $WasteItemsTable extends WasteItems
         _imagePathMeta,
         imagePath.isAcceptableOrUnknown(data['image_path']!, _imagePathMeta),
       );
-    } else if (isInserting) {
-      context.missing(_imagePathMeta);
     }
     if (data.containsKey('created_at')) {
       context.handle(
@@ -187,7 +185,7 @@ class $WasteItemsTable extends WasteItems
       imagePath: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}image_path'],
-      )!,
+      ),
       createdAt: attachedDatabase.typeMapping.read(
         DriftSqlType.dateTime,
         data['${effectivePrefix}created_at'],
@@ -207,7 +205,7 @@ class WasteItemRow extends DataClass implements Insertable<WasteItemRow> {
   final String? memberName;
   final double weight;
   final String type;
-  final String imagePath;
+  final String? imagePath;
   final DateTime createdAt;
   const WasteItemRow({
     required this.id,
@@ -215,7 +213,7 @@ class WasteItemRow extends DataClass implements Insertable<WasteItemRow> {
     this.memberName,
     required this.weight,
     required this.type,
-    required this.imagePath,
+    this.imagePath,
     required this.createdAt,
   });
   @override
@@ -228,7 +226,9 @@ class WasteItemRow extends DataClass implements Insertable<WasteItemRow> {
     }
     map['weight'] = Variable<double>(weight);
     map['type'] = Variable<String>(type);
-    map['image_path'] = Variable<String>(imagePath);
+    if (!nullToAbsent || imagePath != null) {
+      map['image_path'] = Variable<String>(imagePath);
+    }
     map['created_at'] = Variable<DateTime>(createdAt);
     return map;
   }
@@ -242,7 +242,9 @@ class WasteItemRow extends DataClass implements Insertable<WasteItemRow> {
           : Value(memberName),
       weight: Value(weight),
       type: Value(type),
-      imagePath: Value(imagePath),
+      imagePath: imagePath == null && nullToAbsent
+          ? const Value.absent()
+          : Value(imagePath),
       createdAt: Value(createdAt),
     );
   }
@@ -258,7 +260,7 @@ class WasteItemRow extends DataClass implements Insertable<WasteItemRow> {
       memberName: serializer.fromJson<String?>(json['memberName']),
       weight: serializer.fromJson<double>(json['weight']),
       type: serializer.fromJson<String>(json['type']),
-      imagePath: serializer.fromJson<String>(json['imagePath']),
+      imagePath: serializer.fromJson<String?>(json['imagePath']),
       createdAt: serializer.fromJson<DateTime>(json['createdAt']),
     );
   }
@@ -271,7 +273,7 @@ class WasteItemRow extends DataClass implements Insertable<WasteItemRow> {
       'memberName': serializer.toJson<String?>(memberName),
       'weight': serializer.toJson<double>(weight),
       'type': serializer.toJson<String>(type),
-      'imagePath': serializer.toJson<String>(imagePath),
+      'imagePath': serializer.toJson<String?>(imagePath),
       'createdAt': serializer.toJson<DateTime>(createdAt),
     };
   }
@@ -282,7 +284,7 @@ class WasteItemRow extends DataClass implements Insertable<WasteItemRow> {
     Value<String?> memberName = const Value.absent(),
     double? weight,
     String? type,
-    String? imagePath,
+    Value<String?> imagePath = const Value.absent(),
     DateTime? createdAt,
   }) => WasteItemRow(
     id: id ?? this.id,
@@ -290,7 +292,7 @@ class WasteItemRow extends DataClass implements Insertable<WasteItemRow> {
     memberName: memberName.present ? memberName.value : this.memberName,
     weight: weight ?? this.weight,
     type: type ?? this.type,
-    imagePath: imagePath ?? this.imagePath,
+    imagePath: imagePath.present ? imagePath.value : this.imagePath,
     createdAt: createdAt ?? this.createdAt,
   );
   WasteItemRow copyWithCompanion(WasteItemsCompanion data) {
@@ -343,7 +345,7 @@ class WasteItemsCompanion extends UpdateCompanion<WasteItemRow> {
   final Value<String?> memberName;
   final Value<double> weight;
   final Value<String> type;
-  final Value<String> imagePath;
+  final Value<String?> imagePath;
   final Value<DateTime> createdAt;
   const WasteItemsCompanion({
     this.id = const Value.absent(),
@@ -360,12 +362,11 @@ class WasteItemsCompanion extends UpdateCompanion<WasteItemRow> {
     this.memberName = const Value.absent(),
     required double weight,
     required String type,
-    required String imagePath,
+    this.imagePath = const Value.absent(),
     required DateTime createdAt,
   }) : memberId = Value(memberId),
        weight = Value(weight),
        type = Value(type),
-       imagePath = Value(imagePath),
        createdAt = Value(createdAt);
   static Insertable<WasteItemRow> custom({
     Expression<int>? id,
@@ -393,7 +394,7 @@ class WasteItemsCompanion extends UpdateCompanion<WasteItemRow> {
     Value<String?>? memberName,
     Value<double>? weight,
     Value<String>? type,
-    Value<String>? imagePath,
+    Value<String?>? imagePath,
     Value<DateTime>? createdAt,
   }) {
     return WasteItemsCompanion(
@@ -467,7 +468,7 @@ typedef $$WasteItemsTableCreateCompanionBuilder =
       Value<String?> memberName,
       required double weight,
       required String type,
-      required String imagePath,
+      Value<String?> imagePath,
       required DateTime createdAt,
     });
 typedef $$WasteItemsTableUpdateCompanionBuilder =
@@ -477,7 +478,7 @@ typedef $$WasteItemsTableUpdateCompanionBuilder =
       Value<String?> memberName,
       Value<double> weight,
       Value<String> type,
-      Value<String> imagePath,
+      Value<String?> imagePath,
       Value<DateTime> createdAt,
     });
 
@@ -640,7 +641,7 @@ class $$WasteItemsTableTableManager
                 Value<String?> memberName = const Value.absent(),
                 Value<double> weight = const Value.absent(),
                 Value<String> type = const Value.absent(),
-                Value<String> imagePath = const Value.absent(),
+                Value<String?> imagePath = const Value.absent(),
                 Value<DateTime> createdAt = const Value.absent(),
               }) => WasteItemsCompanion(
                 id: id,
@@ -658,7 +659,7 @@ class $$WasteItemsTableTableManager
                 Value<String?> memberName = const Value.absent(),
                 required double weight,
                 required String type,
-                required String imagePath,
+                Value<String?> imagePath = const Value.absent(),
                 required DateTime createdAt,
               }) => WasteItemsCompanion.insert(
                 id: id,

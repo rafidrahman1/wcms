@@ -10,7 +10,7 @@ class WasteItems extends Table {
   TextColumn get memberName => text().nullable()();
   RealColumn get weight => real()();
   TextColumn get type => text()();
-  TextColumn get imagePath => text()();
+  TextColumn get imagePath => text().nullable()();
   DateTimeColumn get createdAt => dateTime()();
 }
 
@@ -19,12 +19,12 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase([QueryExecutor? executor]) : super(executor ?? _openConnection());
 
   @override
-  int get schemaVersion => 5;
+  int get schemaVersion => 6;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
     onUpgrade: (migrator, from, to) async {
-      if (from < 5) {
+      if (from < 6) {
         await migrator.deleteTable('waste_items');
         await migrator.createAll();
       }
