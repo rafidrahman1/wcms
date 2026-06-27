@@ -25,7 +25,6 @@ class _LogWasteScreenState extends ConsumerState<LogWasteScreen> {
   final _weightController = TextEditingController();
   final _nameController = TextEditingController();
   WasteType _selectedType = WasteType.Glass;
-  int _typeFieldKey = 0;
   String? _imagePath;
   bool _isGenerating = false;
 
@@ -109,7 +108,6 @@ class _LogWasteScreenState extends ConsumerState<LogWasteScreen> {
     _nameController.clear();
     setState(() {
       _selectedType = WasteType.Glass;
-      _typeFieldKey++;
       _imagePath = null;
     });
   }
@@ -186,49 +184,73 @@ class _LogWasteScreenState extends ConsumerState<LogWasteScreen> {
               },
             ),
             const SizedBox(height: 16),
-            DropdownButtonFormField<WasteType>(
-              key: ValueKey(_typeFieldKey),
-              initialValue: _selectedType,
-              isExpanded: true,
-              decoration: const InputDecoration(
-                labelText: 'Waste Type',
-                prefixIcon: Icon(
-                  Icons.category_outlined,
-                  color: EcoColors.textSecondary,
-                ),
-                border: OutlineInputBorder(),
-              ),
-              icon: Icon(
-                Icons.keyboard_arrow_down_rounded,
-                color: EcoColors.textSecondary,
-              ),
-              style: const TextStyle(
+            const Text(
+              'Waste Type',
+              style: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
                 color: EcoColors.textPrimary,
-                fontWeight: FontWeight.w500,
-                fontSize: 16,
               ),
-              dropdownColor: EcoColors.surface,
-              borderRadius: BorderRadius.circular(12),
-              menuMaxHeight: 280,
-              items: WasteType.values
-                  .map(
-                    (type) => DropdownMenuItem(
-                      value: type,
-                      child: Text(
-                        type.label,
-                        style: const TextStyle(
-                          color: EcoColors.textPrimary,
-                          fontWeight: FontWeight.w500,
-                        ),
+            ),
+            const SizedBox(height: 12),
+            GridView.count(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              crossAxisCount: 3,
+              mainAxisSpacing: 12,
+              crossAxisSpacing: 12,
+              childAspectRatio: 0.95,
+              children: WasteType.values.map((type) {
+                final isSelected = _selectedType == type;
+                return InkWell(
+                  onTap: () => setState(() => _selectedType = type),
+                  borderRadius: BorderRadius.circular(16),
+                  child: Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(
+                        color: isSelected
+                            ? EcoColors.primary
+                            : EcoColors.border,
+                        width: isSelected ? 2 : 1.5,
                       ),
+                      color: isSelected
+                          ? EcoColors.primaryLight.withValues(alpha: 0.5)
+                          : EcoColors.surface,
                     ),
-                  )
-                  .toList(),
-              onChanged: (value) {
-                if (value != null) {
-                  setState(() => _selectedType = value);
-                }
-              },
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          type.icon,
+                          color: isSelected
+                              ? EcoColors.primary
+                              : EcoColors.textSecondary,
+                          size: 28,
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          type.label,
+                          textAlign: TextAlign.center,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            fontSize: 11,
+                            height: 1.1,
+                            fontWeight: isSelected
+                                ? FontWeight.w700
+                                : FontWeight.w500,
+                            color: isSelected
+                                ? EcoColors.textPrimary
+                                : EcoColors.textSecondary,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              }).toList(),
             ),
             const SizedBox(height: 24),
             _PhotoSection(imagePath: _imagePath, onCapture: _capturePhoto),

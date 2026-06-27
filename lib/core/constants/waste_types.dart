@@ -1,13 +1,17 @@
-enum WasteType {
-  PET_bottles('PET bottles'),
-  Household_plastic_items('Household plastic items'),
-  E_waste('E-waste'),
-  Glass('Glass'),
-  Alluminum('Alluminum/Tin cans');
+import 'package:flutter/material.dart';
 
-  const WasteType(this.label);
+enum WasteType {
+  PET_bottles('PET bottles', Icons.local_drink_outlined),
+  Household_plastic_items('Household plastic', Icons.shopping_basket_outlined),
+  E_waste('E-waste', Icons.devices_outlined),
+  Glass('Glass', Icons.wine_bar_outlined),
+  Alluminum('Aluminum/Tin', Icons.inventory_2_outlined),
+  Other('Other', Icons.category_outlined);
+
+  const WasteType(this.label, this.icon);
 
   final String label;
+  final IconData icon;
 
   static WasteType fromString(String value) {
     return WasteType.values.firstWhere(
