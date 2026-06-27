@@ -40,11 +40,11 @@ abstract final class AppTheme {
         ),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16),
-          borderSide: const BorderSide(color: EcoColors.borderLight, width: 2),
+          borderSide: const BorderSide(color: EcoColors.border, width: 1.5),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16),
-          borderSide: const BorderSide(color: EcoColors.borderLight, width: 2),
+          borderSide: const BorderSide(color: EcoColors.border, width: 1.5),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16),
@@ -52,7 +52,10 @@ abstract final class AppTheme {
         ),
         errorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16),
-          borderSide: const BorderSide(color: EcoColors.errorBorder, width: 2),
+          borderSide: const BorderSide(
+            color: EcoColors.errorBorder,
+            width: 1.5,
+          ),
         ),
       ),
       filledButtonTheme: FilledButtonThemeData(

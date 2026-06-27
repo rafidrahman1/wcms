@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:wms/core/constants/waste_types.dart';
@@ -23,7 +24,7 @@ class _LogWasteScreenState extends ConsumerState<LogWasteScreen> {
   final _memberIdController = TextEditingController();
   final _weightController = TextEditingController();
   final _nameController = TextEditingController();
-  WasteType _selectedType = WasteType.plastic;
+  WasteType _selectedType = WasteType.Glass;
   int _typeFieldKey = 0;
   String? _imagePath;
   bool _isGenerating = false;
@@ -46,7 +47,9 @@ class _LogWasteScreenState extends ConsumerState<LogWasteScreen> {
 
     if (!mounted) return;
 
-    final photo = await Navigator.of(context).push<File>(MaterialPageRoute(builder: (_) => const CameraCaptureScreen()));
+    final photo = await Navigator.of(context).push<File>(
+      MaterialPageRoute(builder: (_) => const CameraCaptureScreen()),
+    );
 
     if (photo == null) return;
 
@@ -69,7 +72,9 @@ class _LogWasteScreenState extends ConsumerState<LogWasteScreen> {
     try {
       final item = WasteItem(
         memberId: _memberIdController.text.trim(),
-        memberName: _nameController.text.trim().isEmpty ? null : _nameController.text.trim(),
+        memberName: _nameController.text.trim().isEmpty
+            ? null
+            : _nameController.text.trim(),
         weight: double.parse(_weightController.text.trim()),
         type: _selectedType,
         imagePath: _imagePath,
@@ -81,7 +86,9 @@ class _LogWasteScreenState extends ConsumerState<LogWasteScreen> {
       if (!mounted) return;
       _resetForm();
 
-      await Navigator.of(context).push(MaterialPageRoute<void>(builder: (_) => WasteDetailScreen(itemId: id)));
+      await Navigator.of(context).push(
+        MaterialPageRoute<void>(builder: (_) => WasteDetailScreen(itemId: id)),
+      );
 
       if (mounted) _dismissKeyboard();
     } catch (error) {
@@ -101,14 +108,16 @@ class _LogWasteScreenState extends ConsumerState<LogWasteScreen> {
     _weightController.clear();
     _nameController.clear();
     setState(() {
-      _selectedType = WasteType.plastic;
+      _selectedType = WasteType.Glass;
       _typeFieldKey++;
       _imagePath = null;
     });
   }
 
   void _showSnackBar(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(message)));
   }
 
   @override
@@ -122,11 +131,13 @@ class _LogWasteScreenState extends ConsumerState<LogWasteScreen> {
           children: [
             TextFormField(
               controller: _memberIdController,
-              textCapitalization: TextCapitalization.characters,
+              keyboardType: TextInputType.number,
+              inputFormatters: [FilteringTextInputFormatter.digitsOnly],
               decoration: const InputDecoration(
                 labelText: 'Member ID',
                 prefixIcon: Icon(Icons.tag, color: EcoColors.textSecondary),
-                hintText: 'Alphanumeric ID',
+                hintText: 'Enter Member ID',
+                border: OutlineInputBorder(),
               ),
               validator: (value) {
                 if (value == null || value.trim().isEmpty) {
@@ -140,18 +151,28 @@ class _LogWasteScreenState extends ConsumerState<LogWasteScreen> {
               controller: _nameController,
               decoration: const InputDecoration(
                 labelText: 'Name',
-                prefixIcon: Icon(Icons.scale_outlined, color: EcoColors.textSecondary),
+                prefixIcon: Icon(
+                  Icons.person_outline,
+                  color: EcoColors.textSecondary,
+                ),
                 hintText: 'e.g. Rahim',
+                border: OutlineInputBorder(),
               ),
             ),
             const SizedBox(height: 16),
             TextFormField(
               controller: _weightController,
-              keyboardType: const TextInputType.numberWithOptions(decimal: true),
+              keyboardType: const TextInputType.numberWithOptions(
+                decimal: true,
+              ),
               decoration: const InputDecoration(
                 labelText: 'Weight (kg)',
-                prefixIcon: Icon(Icons.scale_outlined, color: EcoColors.textSecondary),
+                prefixIcon: Icon(
+                  Icons.scale_outlined,
+                  color: EcoColors.textSecondary,
+                ),
                 hintText: 'e.g. 2.5',
+                border: OutlineInputBorder(),
               ),
               validator: (value) {
                 if (value == null || value.trim().isEmpty) {
@@ -171,10 +192,21 @@ class _LogWasteScreenState extends ConsumerState<LogWasteScreen> {
               isExpanded: true,
               decoration: const InputDecoration(
                 labelText: 'Waste Type',
-                prefixIcon: Icon(Icons.category_outlined, color: EcoColors.textSecondary),
+                prefixIcon: Icon(
+                  Icons.category_outlined,
+                  color: EcoColors.textSecondary,
+                ),
+                border: OutlineInputBorder(),
               ),
-              icon: Icon(Icons.keyboard_arrow_down_rounded, color: EcoColors.textSecondary),
-              style: const TextStyle(color: EcoColors.textPrimary, fontWeight: FontWeight.w500, fontSize: 16),
+              icon: Icon(
+                Icons.keyboard_arrow_down_rounded,
+                color: EcoColors.textSecondary,
+              ),
+              style: const TextStyle(
+                color: EcoColors.textPrimary,
+                fontWeight: FontWeight.w500,
+                fontSize: 16,
+              ),
               dropdownColor: EcoColors.surface,
               borderRadius: BorderRadius.circular(12),
               menuMaxHeight: 280,
@@ -184,7 +216,10 @@ class _LogWasteScreenState extends ConsumerState<LogWasteScreen> {
                       value: type,
                       child: Text(
                         type.label,
-                        style: const TextStyle(color: EcoColors.textPrimary, fontWeight: FontWeight.w500),
+                        style: const TextStyle(
+                          color: EcoColors.textPrimary,
+                          fontWeight: FontWeight.w500,
+                        ),
                       ),
                     ),
                   )
@@ -201,7 +236,14 @@ class _LogWasteScreenState extends ConsumerState<LogWasteScreen> {
             FilledButton.icon(
               onPressed: _isGenerating ? null : _generateQr,
               icon: _isGenerating
-                  ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
+                  ? const SizedBox(
+                      width: 20,
+                      height: 20,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        color: Colors.white,
+                      ),
+                    )
                   : const Icon(Icons.qr_code_2_outlined),
               label: Text(_isGenerating ? 'Generating...' : 'Generate QR'),
             ),
@@ -225,7 +267,11 @@ class _PhotoSection extends StatelessWidget {
       children: [
         const Text(
           'Photo',
-          style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: EcoColors.textPrimary),
+          style: TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.w600,
+            color: EcoColors.textPrimary,
+          ),
         ),
         const SizedBox(height: 12),
         AspectRatio(
@@ -244,18 +290,29 @@ class _PhotoSection extends StatelessWidget {
                 : const Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Icon(Icons.photo_camera_outlined, size: 48, color: EcoColors.textSecondary),
+                      Icon(
+                        Icons.photo_camera_outlined,
+                        size: 48,
+                        color: EcoColors.textSecondary,
+                      ),
                       SizedBox(height: 8),
                       Text(
                         'No photo captured',
-                        style: TextStyle(color: EcoColors.textSecondary, fontWeight: FontWeight.w500),
+                        style: TextStyle(
+                          color: EcoColors.textSecondary,
+                          fontWeight: FontWeight.w500,
+                        ),
                       ),
                     ],
                   ),
           ),
         ),
         const SizedBox(height: 12),
-        OutlinedButton.icon(onPressed: onCapture, icon: const Icon(Icons.camera_alt_outlined), label: Text(imagePath == null ? 'Take Photo' : 'Retake Photo')),
+        OutlinedButton.icon(
+          onPressed: onCapture,
+          icon: const Icon(Icons.camera_alt_outlined),
+          label: Text(imagePath == null ? 'Take Photo' : 'Retake Photo'),
+        ),
       ],
     );
   }

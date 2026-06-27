@@ -1,9 +1,9 @@
 enum WasteType {
-  plastic('Plastic'),
-  glass('Glass'),
-  paper('Paper'),
-  metal('Metal'),
-  other('Other');
+  PET_bottles('PET bottles'),
+  Household_plastic_items('Household plastic items'),
+  E_waste('E-waste'),
+  Glass('Glass'),
+  Alluminum('Alluminum/Tin cans');
 
   const WasteType(this.label);
 
@@ -12,7 +12,6 @@ enum WasteType {
   static WasteType fromString(String value) {
     return WasteType.values.firstWhere(
       (type) => type.name == value || type.label == value,
-      orElse: () => WasteType.other,
     );
   }
 }
