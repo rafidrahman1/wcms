@@ -36,19 +36,32 @@ class AppDatabase extends _$AppDatabase {
   }
 
   Stream<List<WasteItemRow>> watchAllWasteItems() {
-    return (select(wasteItems)..orderBy([(t) => OrderingTerm.desc(t.createdAt)])).watch();
+    return (select(
+      wasteItems,
+    )..orderBy([(t) => OrderingTerm.desc(t.createdAt)])).watch();
   }
 
   Future<List<WasteItemRow>> getAllWasteItems() {
-    return (select(wasteItems)..orderBy([(t) => OrderingTerm.desc(t.createdAt)])).get();
+    return (select(
+      wasteItems,
+    )..orderBy([(t) => OrderingTerm.desc(t.createdAt)])).get();
   }
 
   Future<WasteItemRow?> getWasteItemById(int id) {
-    return (select(wasteItems)..where((t) => t.id.equals(id))).getSingleOrNull();
+    return (select(
+      wasteItems,
+    )..where((t) => t.id.equals(id))).getSingleOrNull();
   }
 
   Future<int> insertWasteItem(WasteItemsCompanion item) {
     return into(wasteItems).insert(item);
+  }
+
+  Future<int> countWasteItems() async {
+    final count = countAll();
+    final query = selectOnly(wasteItems)..addColumns([count]);
+    final result = await query.map((row) => row.read(count)).getSingle();
+    return result ?? 0;
   }
 
   Future<int> deleteWasteItem(int id) {

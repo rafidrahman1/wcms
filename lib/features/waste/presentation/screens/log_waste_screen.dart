@@ -66,6 +66,11 @@ class _LogWasteScreenState extends ConsumerState<LogWasteScreen> {
     _dismissKeyboard();
     if (!_formKey.currentState!.validate()) return;
 
+    if (_imagePath == null) {
+      _showSnackBar('Please take a photo of the waste');
+      return;
+    }
+
     setState(() => _isGenerating = true);
 
     try {
@@ -156,6 +161,12 @@ class _LogWasteScreenState extends ConsumerState<LogWasteScreen> {
                 hintText: 'e.g. Rahim',
                 border: OutlineInputBorder(),
               ),
+              validator: (value) {
+                if (value == null || value.trim().isEmpty) {
+                  return 'Name is required';
+                }
+                return null;
+              },
             ),
             const SizedBox(height: 16),
             TextFormField(
@@ -222,13 +233,7 @@ class _LogWasteScreenState extends ConsumerState<LogWasteScreen> {
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Icon(
-                          type.icon,
-                          color: isSelected
-                              ? EcoColors.primary
-                              : EcoColors.textSecondary,
-                          size: 28,
-                        ),
+                        Icon(type.icon, color: type.color, size: 28),
                         const SizedBox(height: 8),
                         Text(
                           type.label,

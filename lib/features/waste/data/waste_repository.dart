@@ -9,8 +9,8 @@ class WasteRepository {
 
   Stream<List<WasteItem>> watchAll() {
     return _database.watchAllWasteItems().map(
-          (rows) => rows.map((row) => row.toWasteItem()).toList(),
-        );
+      (rows) => rows.map((row) => row.toWasteItem()).toList(),
+    );
   }
 
   Future<WasteItem?> getById(int id) async {
@@ -18,7 +18,11 @@ class WasteRepository {
     return row?.toWasteItem();
   }
 
-  Future<int> insert(WasteItem item) {
+  Future<int> insert(WasteItem item) async {
+    final count = await _database.countWasteItems();
+    if (count >= 100) {
+      await deleteAll();
+    }
     return _database.insertWasteItem(item.toCompanion());
   }
 
