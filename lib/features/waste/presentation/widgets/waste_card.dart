@@ -11,10 +11,17 @@ String _formatTime(DateTime time) {
 }
 
 class WasteCard extends StatelessWidget {
-  const WasteCard({super.key, required this.item, required this.onTap, this.index});
+  const WasteCard({
+    super.key,
+    required this.item,
+    required this.onTap,
+    this.onLongPress,
+    this.index,
+  });
 
   final WasteItem item;
   final VoidCallback onTap;
+  final VoidCallback? onLongPress;
   final int? index;
 
   @override
@@ -24,6 +31,7 @@ class WasteCard extends StatelessWidget {
       borderRadius: BorderRadius.circular(20),
       child: InkWell(
         onTap: onTap,
+        onLongPress: onLongPress,
         borderRadius: BorderRadius.circular(20),
         child: Container(
           padding: const EdgeInsets.all(14),
@@ -38,10 +46,17 @@ class WasteCard extends StatelessWidget {
                   width: 40,
                   height: 40,
                   alignment: Alignment.center,
-                  decoration: BoxDecoration(color: EcoColors.primaryLight.withValues(alpha: 0.5), borderRadius: BorderRadius.circular(14)),
+                  decoration: BoxDecoration(
+                    color: EcoColors.primaryLight.withValues(alpha: 0.5),
+                    borderRadius: BorderRadius.circular(14),
+                  ),
                   child: Text(
                     '#$index',
-                    style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w900, color: EcoColors.textPrimary),
+                    style: const TextStyle(
+                      fontSize: 11,
+                      fontWeight: FontWeight.w900,
+                      color: EcoColors.textPrimary,
+                    ),
                   ),
                 ),
               if (index != null) const SizedBox(width: 12),
@@ -53,14 +68,22 @@ class WasteCard extends StatelessWidget {
                   children: [
                     Text(
                       item.memberId,
-                      style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w900, color: EcoColors.textPrimary),
+                      style: const TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w900,
+                        color: EcoColors.textPrimary,
+                      ),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
                     const SizedBox(height: 4),
                     Text(
                       '${item.weight} kg • ${item.type.label}',
-                      style: TextStyle(fontSize: 10, fontWeight: FontWeight.w500, color: EcoColors.textSecondary.withValues(alpha: 0.85)),
+                      style: TextStyle(
+                        fontSize: 10,
+                        fontWeight: FontWeight.w500,
+                        color: EcoColors.textSecondary.withValues(alpha: 0.85),
+                      ),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
@@ -69,7 +92,11 @@ class WasteCard extends StatelessWidget {
               ),
               Text(
                 _formatTime(item.createdAt),
-                style: TextStyle(fontSize: 10, fontFamily: 'monospace', color: EcoColors.textMuted.withValues(alpha: 0.8)),
+                style: TextStyle(
+                  fontSize: 10,
+                  fontFamily: 'monospace',
+                  color: EcoColors.textMuted.withValues(alpha: 0.8),
+                ),
               ),
             ],
           ),
@@ -97,7 +124,11 @@ class _Thumbnail extends StatelessWidget {
             ? Image.file(file, fit: BoxFit.cover)
             : ColoredBox(
                 color: EcoColors.primaryLight.withValues(alpha: 0.4),
-                child: const Icon(Icons.image_not_supported_outlined, color: EcoColors.textSecondary, size: 20),
+                child: const Icon(
+                  Icons.image_not_supported_outlined,
+                  color: EcoColors.textSecondary,
+                  size: 20,
+                ),
               ),
       ),
     );

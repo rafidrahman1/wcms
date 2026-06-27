@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wms/core/theme/eco_colors.dart';
@@ -17,7 +19,10 @@ class DashboardScreen extends ConsumerWidget {
       loading: () => const Center(child: CircularProgressIndicator()),
       error: (error, _) => _ErrorState(message: error.toString()),
       data: (items) {
-        final totalWeight = items.fold<double>(0, (sum, item) => sum + item.weight);
+        final totalWeight = items.fold<double>(
+          0,
+          (sum, item) => sum + item.weight,
+        );
 
         return ListView(
           padding: const EdgeInsets.fromLTRB(24, 8, 24, 24),
@@ -37,10 +42,7 @@ class DashboardScreen extends ConsumerWidget {
                   child: const Text('Clear all'),
                 ),
               ),
-            _StatsRow(
-              totalLogs: items.length,
-              totalWeight: totalWeight,
-            ),
+            _StatsRow(totalLogs: items.length, totalWeight: totalWeight),
             const SizedBox(height: 20),
             if (items.isEmpty)
               const _EmptyState()
@@ -83,6 +85,11 @@ class DashboardScreen extends ConsumerWidget {
                           ),
                         );
                       },
+                      onLongPress: () {
+                        if (item.imagePath != null) {
+                          _showImagePreview(context, item.imagePath!);
+                        }
+                      },
                     ),
                   ),
                 );
@@ -92,13 +99,41 @@ class DashboardScreen extends ConsumerWidget {
       },
     );
   }
+
+  void _showImagePreview(BuildContext context, String imagePath) {
+    final file = File(imagePath);
+    if (!file.existsSync()) return;
+
+    showDialog(
+      context: context,
+      builder: (context) => Dialog(
+        backgroundColor: Colors.transparent,
+        insetPadding: const EdgeInsets.all(24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Align(
+              alignment: Alignment.centerRight,
+              child: IconButton(
+                onPressed: () => Navigator.pop(context),
+                icon: const Icon(Icons.close, color: Colors.white),
+              ),
+            ),
+            Flexible(
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(20),
+                child: Image.file(file, fit: BoxFit.contain),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 }
 
 class _StatsRow extends StatelessWidget {
-  const _StatsRow({
-    required this.totalLogs,
-    required this.totalWeight,
-  });
+  const _StatsRow({required this.totalLogs, required this.totalWeight});
 
   final int totalLogs;
   final double totalWeight;
