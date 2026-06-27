@@ -20,11 +20,17 @@ class WasteRepository {
 
   Future<int> insert(WasteItem item) async {
     final count = await _database.countWasteItems();
-    if (count >= 100) {
+    final threshold = await _database.getDeletionThreshold();
+    if (count >= threshold) {
       await deleteAll();
     }
     return _database.insertWasteItem(item.toCompanion());
   }
+
+  Future<int> getThreshold() => _database.getDeletionThreshold();
+
+  Future<void> updateThreshold(int value) =>
+      _database.updateDeletionThreshold(value);
 
   Future<void> delete(int id) async {
     final item = await getById(id);

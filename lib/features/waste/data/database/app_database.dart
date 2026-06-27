@@ -14,12 +14,18 @@ class WasteItems extends Table {
   DateTimeColumn get createdAt => dateTime()();
 }
 
-@DriftDatabase(tables: [WasteItems])
+class AppSettings extends Table {
+  IntColumn get id => integer().autoIncrement()();
+  IntColumn get deletionThreshold =>
+      integer().withDefault(const Constant(100))();
+}
+
+@DriftDatabase(tables: [WasteItems, AppSettings])
 class AppDatabase extends _$AppDatabase {
   AppDatabase([QueryExecutor? executor]) : super(executor ?? _openConnection());
 
   @override
-  int get schemaVersion => 6;
+  int get schemaVersion => 7;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -27,6 +33,8 @@ class AppDatabase extends _$AppDatabase {
       if (from < 6) {
         await migrator.deleteTable('waste_items');
         await migrator.createAll();
+      } else if (from < 7) {
+        await migrator.createTable(appSettings);
       }
     },
   );
@@ -70,5 +78,23 @@ class AppDatabase extends _$AppDatabase {
 
   Future<void> deleteAllWasteItems() {
     return delete(wasteItems).go();
+  }
+
+  Future<int> getDeletionThreshold() async {
+    final settings = await select(appSettings).getSingleOrNull();
+    return settings?.deletionThreshold ?? 100;
+  }
+
+  Future<void> updateDeletionThreshold(int threshold) async {
+    final settings = await select(appSettings).getSingleOrNull();
+    if (settings == null) {
+      await into(appSettings).insert(
+        AppSettingsCompanion.insert(deletionThreshold: Value(threshold)),
+      );
+    } else {
+      await (update(appSettings)..where((t) => t.id.equals(settings.id))).write(
+        AppSettingsCompanion(deletionThreshold: Value(threshold)),
+      );
+    }
   }
 }
