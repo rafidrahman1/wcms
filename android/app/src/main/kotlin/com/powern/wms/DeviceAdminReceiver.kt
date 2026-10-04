@@ -1,4 +1,4 @@
-package com.example.wms
+package com.powern.wms
 
 import android.app.admin.DeviceAdminReceiver
 import android.content.Context

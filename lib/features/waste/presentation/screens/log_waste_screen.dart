@@ -66,6 +66,23 @@ class _LogWasteScreenState extends ConsumerState<LogWasteScreen> {
     _dismissKeyboard();
     if (!_formKey.currentState!.validate()) return;
 
+    if (double.parse(_weightController.text.trim()) > 30) {
+      await showDialog<void>(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: const Text('Weight too high'),
+          content: const Text('Weight cannot be more than 30 kg.'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('OK'),
+            ),
+          ],
+        ),
+      );
+      return;
+    }
+
     if (_imagePath == null) {
       _showSnackBar('Please take a photo of the waste');
       return;

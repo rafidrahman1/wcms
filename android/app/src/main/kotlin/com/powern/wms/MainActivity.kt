@@ -1,4 +1,4 @@
-package com.example.wms
+package com.powern.wms
 
 import android.app.admin.DevicePolicyManager
 import android.content.ComponentName
@@ -8,7 +8,7 @@ import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.MethodChannel
 
 class MainActivity : FlutterActivity() {
-    private val CHANNEL = "com.example.wms/device_admin"
+    private val CHANNEL = "com.powern.wms/device_admin"
 
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)

@@ -22,3 +22,12 @@ subprojects {
 tasks.register<Delete>("clean") {
     delete(rootProject.layout.buildDirectory)
 }
+
+// camera_android_camerax needs concurrent-futures on its compile classpath
+project(":camera_android_camerax") {
+    afterEvaluate {
+        dependencies {
+            add("compileOnly", "androidx.concurrent:concurrent-futures:1.2.0")
+        }
+    }
+}
